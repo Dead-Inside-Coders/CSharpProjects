@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GameOfFifteen
 {
-    
+
 
     public class AutoSolveClass
     {
@@ -35,13 +35,13 @@ namespace GameOfFifteen
         {
             int i, j, res = 0;
 
-            for(i = 0; i<16; i++)
+            for (i = 0; i < 16; i++)
             {
                 if (b[i] == 0)
                     continue;
-                for(j = 0; j<16;j++)
+                for (j = 0; j < 16; j++)
                 {
-                    if(j == b[i] - 1)
+                    if (j == b[i] - 1)
                     {
                         res += Math.Abs(i % 4 - j % 4) + Math.Abs(i / 4 - j / 4);
                     }
@@ -58,18 +58,18 @@ namespace GameOfFifteen
             int[] tempArr;
             int i, zeroIndex = 0;
 
-            for(i= 0; i<16; i++)
+            for (i = 0; i < 16; i++)
             {
-                if(parent.boardNumArray[i] == 0)
+                if (parent.boardNumArray[i] == 0)
                 {
                     zeroIndex = i;
                     break;
                 }
             }
 
-            for(i = 0; i<16;i++)
+            for (i = 0; i < 16; i++)
             {
-                if(Math.Abs(zeroIndex-i) == 1||Math.Abs(zeroIndex - i) == 4)
+                if (Math.Abs(zeroIndex - i) == 1 || Math.Abs(zeroIndex - i) == 4)
                 {
                     if (zeroIndex - i == 1 && zeroIndex % 4 == 0)
                         continue;
@@ -80,7 +80,7 @@ namespace GameOfFifteen
                         tempArr = (int[])parent.boardNumArray.Clone();
                         tempArr[zeroIndex] = tempArr[i];
                         tempArr[i] = 0;
-                        switch(zeroIndex-i)
+                        switch (zeroIndex - i)
                         {
                             case -1:
                                 l.Add(new BoardState("R", tempArr, parent));
@@ -130,7 +130,7 @@ namespace GameOfFifteen
 
             int f = g + h;
 
-            if(f>deepness)
+            if (f > deepness)
             {
                 if (minPrevIter > f)
                     minPrevIter = f;
@@ -139,14 +139,14 @@ namespace GameOfFifteen
 
             Neighbors = FindNeighbors(prevState);
 
-            foreach(var y in Neighbors)
+            foreach (var y in Neighbors)
             {
-                if(prevState.move != "") //If state is not a start position
+                if (prevState.move != "") //If state is not a start position
                 {
-                    if(!y.boardNumArray.SequenceEqual(prevState.parent.boardNumArray))
+                    if (!y.boardNumArray.SequenceEqual(prevState.parent.boardNumArray))
                     {
                         res = recSearch(g + 1, y);
-                        if(res)
+                        if (res)
                         {
                             map += y.move;
                             return true;
@@ -183,7 +183,7 @@ namespace GameOfFifteen
             startState.h = ManhattenDistance(startState.boardNumArray);
             startState.f = startState.g + startState.h;
 
-            while(OpenList.Any())
+            while (OpenList.Any())
             {
                 X = OpenList.Min();
 
@@ -194,13 +194,13 @@ namespace GameOfFifteen
                 CloseList.Add(X);
                 Neighbors = FindNeighbors(X);
 
-                foreach(var y in Neighbors)
+                foreach (var y in Neighbors)
                 {
                     if (CloseList.Any(x => x.boardNumArray.SequenceEqual(y.boardNumArray)))
                         continue;
                     tempG = X.g + 1;
 
-                    if(!OpenList.Any(x => x.boardNumArray.SequenceEqual(y.boardNumArray)))
+                    if (!OpenList.Any(x => x.boardNumArray.SequenceEqual(y.boardNumArray)))
                     {
                         OpenList.Add(y);
                         index = OpenList.Count - 1;
@@ -212,7 +212,7 @@ namespace GameOfFifteen
                         tentativIsBetter = tempG < OpenList[index].g;
                     }
 
-                    if(tentativIsBetter)
+                    if (tentativIsBetter)
                     {
                         OpenList[index].g = tempG;
                         OpenList[index].h = ManhattenDistance(y.boardNumArray);
@@ -229,7 +229,7 @@ namespace GameOfFifteen
         {
             BoardState curr = goal;
             string map = "";
-            while(curr.parent != null)
+            while (curr.parent != null)
             {
                 map += curr.move;
                 curr = curr.parent;

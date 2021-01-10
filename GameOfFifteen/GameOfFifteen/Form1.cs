@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,32 +13,28 @@ namespace GameOfFifteen
 {
     public partial class Form1 : Form
     {
+        public delegate void MyDelegate();
+
         private Button[] buttonsArray;
         private int[] numArray;
-        private int[] goalNumArray;
-        private int steps, mapIndex, difficulty;
-        private string map;
-        private bool isOnAutoGame;
+        //private int[] goalNumArray;
+        private int steps, difficulty;
         private BoardState startState;
-        private Timer timer;
         AutoSolveClass Solver;
 
         public Form1()
         {
             steps = 0;
-            mapIndex = 0;
             difficulty = 25;
-            map = "";
-            isOnAutoGame = false;
             startState = new BoardState();
             buttonsArray = new Button[16];
             numArray = new int[16];
-            goalNumArray = new int[16];
+            // goalNumArray = new int[16];
 
-            timer = new Timer();
-            timer.Interval = 500;
-            timer.Enabled = false;
-            timer.Tick += TimerTick;
+            //timer = new System.Timers.Timer();
+            //timer.Interval = 500;
+            //timer.Enabled = false;
+            //timer.Tick += TimerTick;
 
             Solver = new AutoSolveClass();
 
@@ -67,16 +64,13 @@ namespace GameOfFifteen
                 this.Controls.Add(buttonsArray[i]);
             }
         }
-        
+
 
         // Create New Game function
         private void CreateGame()
         {
             int i;
             steps = 0;
-            mapIndex = 0;
-            map = "";
-            isOnAutoGame = false;
             autoGameToolStripMenuItem.Enabled = true;
             aStarToolStripMenuItem.Enabled = true;
             label1.Text = steps.ToString();
@@ -92,7 +86,7 @@ namespace GameOfFifteen
                     buttonsArray[i].Text = Convert.ToString(numArray[i]);
                 else
                     buttonsArray[i].Text = "";
-           }
+            }
         }
 
 
@@ -100,29 +94,28 @@ namespace GameOfFifteen
         private void CreateBoard()
         {
             int i, zeroIndex = 15, tempIndex = 0, prevIndex = 0;
-            bool flag = false;
+
             int[] actions = new int[] { 1, -1, 4, -4 };
             Random rd = new Random();
-            
-            for(i = 0; i<16; i++)
+
+            for (i = 0; i < 16; i++)
                 numArray[i] = i + 1;
             numArray[zeroIndex] = 0;
-            for(i = 0; i<difficulty;i++)
+            for (i = 0; i < difficulty; i++)
             {
                 do
                 {
                     tempIndex = zeroIndex + actions[rd.Next(4)];
-                    if (prevIndex!=tempIndex&&isCanMove(zeroIndex, tempIndex))
+                    if (prevIndex != tempIndex && isCanMove(zeroIndex, tempIndex))
                     {
                         numArray[zeroIndex] = numArray[tempIndex];
                         numArray[tempIndex] = 0;
                         prevIndex = zeroIndex;
                         zeroIndex = tempIndex;
-                        flag = true;
+                        break;
                     }
-                    else
-                        flag = false;
-                } while (!flag);
+
+                } while (true);
             }
         }
 
@@ -132,17 +125,17 @@ namespace GameOfFifteen
         {
             int i, tempIndex = 0;
 
-            for(i=0;i<16;i++)
+            for (i = 0; i < 16; i++)
             {
                 if ((Button)sender == buttonsArray[i])
                     tempIndex = i;
             }
 
-            for(i = 0; i<16; i++)
+            for (i = 0; i < 16; i++)
             {
-                if(numArray[i] == 0)
+                if (numArray[i] == 0)
                 {
-                    if(isCanMove(i,tempIndex))
+                    if (isCanMove(i, tempIndex))
                     {
                         buttonsArray[i].Text = buttonsArray[tempIndex].Text;
                         buttonsArray[tempIndex].Text = "";
@@ -156,7 +149,7 @@ namespace GameOfFifteen
                 }
             }
 
-            if(isGameOver())
+            if (isGameOver())
             {
                 label1.ForeColor = Color.FromArgb(54, 72, 36);
                 for (i = 0; i < 16; i++)
@@ -172,6 +165,7 @@ namespace GameOfFifteen
         {
             difficulty = 15;
             CreateGame();
+            listView1.Items.Clear();
         }
 
 
@@ -180,6 +174,7 @@ namespace GameOfFifteen
         {
             difficulty = 25;
             CreateGame();
+            listView1.Items.Clear();
         }
 
 
@@ -189,105 +184,100 @@ namespace GameOfFifteen
             difficulty = 50;
             CreateGame();
             aStarToolStripMenuItem.Enabled = false;
+            listView1.Items.Clear();
         }
 
 
         // Call Auto Solver IDA Star Algorithm
         private void iDAStarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            map = Solver.GetPathIDAStar(startState);
+            string solution = Solver.GetPathIDAStar(startState);
             label1.ForeColor = Color.FromArgb(54, 72, 36);
-            if (map != "")
+            if (solution != "")
             {
                 for (int i = 0; i < 16; i++)
                     buttonsArray[i].Enabled = false;
-                isOnAutoGame = true;
-                timer.Enabled = true;
-                newGameToolStripMenuItem.Enabled = false;
-                autoGameToolStripMenuItem.Enabled = false;
+                applaySolution(solution);
             }
             else
                 MessageBox.Show("Solution not found:(");
         }
-        
+
 
         // Call Auto Solver A Star algorithm
         private void aStarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            map = Solver.GetPathAStar(startState);
+            var solution = Task.Factory.StartNew(() => Solver.GetPathAStar(startState));
             label1.ForeColor = Color.FromArgb(54, 72, 36);
-            if (map != "")
+            if (solution.Result != "")
             {
                 for (int i = 0; i < 16; i++)
                     buttonsArray[i].Enabled = false;
-                isOnAutoGame = true;
-                timer.Enabled = true;
                 newGameToolStripMenuItem.Enabled = false;
                 autoGameToolStripMenuItem.Enabled = false;
+                applaySolution(solution.Result);
             }
             else
                 MessageBox.Show("Solution not found:(");
         }
 
-
-        // Solver Animation per tick
-        private void TimerTick(object sender, EventArgs e)
+        private void applaySolution(string solution)
         {
-            int i, zeroIndex = 0;
-            for (i = 0; i < 16; i++)
-                if (numArray[i] == 0)
-                {
-                    zeroIndex = i;
-                    break;
-                }
-            if (isOnAutoGame)
+            while (solution.Length > 0)
             {
-                switch (map[mapIndex])
+
+                int zeroIndex = 0;
+                for (int i = 0; i < 16; i++)
+                    if (numArray[i] == 0)
+                    {
+                        zeroIndex = i;
+                        break;
+                    }
+                switch (solution[0])
                 {
                     case 'U':
-                        buttonsArray[zeroIndex].Text = buttonsArray[zeroIndex - 4].Text;
-                        buttonsArray[zeroIndex - 4].Text = "";
-                        numArray[zeroIndex] = numArray[zeroIndex - 4];
-                        numArray[zeroIndex - 4] = 0;
+                        changeButtonPosition(zeroIndex, -4, "up");
+                        solution = solution.Remove(0, 1);
                         break;
                     case 'D':
-                        buttonsArray[zeroIndex].Text = buttonsArray[zeroIndex + 4].Text;
-                        buttonsArray[zeroIndex + 4].Text = "";
-                        numArray[zeroIndex] = numArray[zeroIndex + 4];
-                        numArray[zeroIndex + 4] = 0;
+                        changeButtonPosition(zeroIndex, 4, "down");
+                        solution = solution.Remove(0, 1);
                         break;
                     case 'R':
-                        buttonsArray[zeroIndex].Text = buttonsArray[zeroIndex + 1].Text;
-                        buttonsArray[zeroIndex + 1].Text = "";
-                        numArray[zeroIndex] = numArray[zeroIndex + 1];
-                        numArray[zeroIndex + 1] = 0;
+                        changeButtonPosition(zeroIndex, 1, "right");
+                        solution = solution.Remove(0, 1);
                         break;
                     case 'L':
-                        buttonsArray[zeroIndex].Text = buttonsArray[zeroIndex - 1].Text;
-                        buttonsArray[zeroIndex - 1].Text = "";
-                        numArray[zeroIndex] = numArray[zeroIndex - 1];
-                        numArray[zeroIndex - 1] = 0;
+                        changeButtonPosition(zeroIndex, -1, "left");
+                        solution = solution.Remove(0, 1);
                         break;
                 }
-                mapIndex++;
                 steps++;
                 label1.Text = steps.ToString();
-            }
-            if (isGameOver())
-            {
-                for (i = 0; i < 16; i++)
-                    buttonsArray[i].Enabled = false;
-                timer.Enabled = false;
-                newGameToolStripMenuItem.Enabled = true;
-                MessageBox.Show(String.Format("Congratulation, you won!\nNumber of Steps: {0}", steps), "Game Over", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                if (isGameOver())
+                {
+                    for (int i = 0; i < 16; i++)
+                        buttonsArray[i].Enabled = false;
+                    newGameToolStripMenuItem.Enabled = true;
+                    MessageBox.Show(String.Format("Congratulation, you won!\nNumber of Steps: {0}", steps), "Game Over", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
         }
 
+        private void changeButtonPosition(int index, int newIndex, string where)
+        {
+            listView1.Items.Add(buttonsArray[index + newIndex].Text + "--->" + where);
+            buttonsArray[index].Text = buttonsArray[index + newIndex].Text;
+            buttonsArray[index + newIndex].Text = "";
+            numArray[index] = numArray[index + newIndex];
+            numArray[index + newIndex] = 0;
+        }
 
         // Application info
         private void infoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Game of Fifteen\nCreated by Krasochenko Yegor\n2017", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Game of Fifteen", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
 
@@ -301,9 +291,9 @@ namespace GameOfFifteen
         //Check is next move vald
         private bool isCanMove(int zeroIndex, int curr)
         {
-            if(curr<0||curr>15)
+            if (curr < 0 || curr > 15)
                 return false;
-            if(Math.Abs(zeroIndex- curr) == 1||Math.Abs(zeroIndex - curr)==4)
+            if (Math.Abs(zeroIndex - curr) == 1 || Math.Abs(zeroIndex - curr) == 4)
             {
                 if (zeroIndex - curr == 1 && zeroIndex % 4 == 0)
                     return false;
@@ -326,7 +316,7 @@ namespace GameOfFifteen
         }
 
 
-        
+
     }
 }
 
