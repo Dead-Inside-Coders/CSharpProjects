@@ -12,6 +12,7 @@ namespace GameOfFifteen
     {
         private int deepness, minPrevIter;
         private string map;
+        Form1.MyDelegate myDelegate;
 
         public AutoSolveClass()
         {
@@ -19,12 +20,9 @@ namespace GameOfFifteen
             minPrevIter = 0;
         }
 
-        public string GetPathAStar(BoardState start)
+        public string GetPathIDAStar(BoardState start, Form1.MyDelegate myDelegate)
         {
-            return AStar(start);
-        }
-        public string GetPathIDAStar(BoardState start)
-        {
+            this.myDelegate = myDelegate;
             if (IDAStar(start))
                 return new string(map.Reverse().ToArray());
             return "";
@@ -166,75 +164,5 @@ namespace GameOfFifteen
             return false;
         }
 
-        // A-Star Algorithm
-        private string AStar(BoardState startState)
-        {
-            List<BoardState> CloseList = new List<BoardState>();
-            List<BoardState> OpenList = new List<BoardState>();
-            List<BoardState> Neighbors;
-
-            OpenList.Add(startState);
-
-            BoardState X;
-            int tempG = 0, index = 0;
-            bool tentativIsBetter = false;
-
-            startState.g = 0;
-            startState.h = ManhattenDistance(startState.boardNumArray);
-            startState.f = startState.g + startState.h;
-
-            while (OpenList.Any())
-            {
-                X = OpenList.Min();
-
-                if (X.h == 0)
-                    return FindPath(X);
-
-                OpenList.Remove(X);
-                CloseList.Add(X);
-                Neighbors = FindNeighbors(X);
-
-                foreach (var y in Neighbors)
-                {
-                    if (CloseList.Any(x => x.boardNumArray.SequenceEqual(y.boardNumArray)))
-                        continue;
-                    tempG = X.g + 1;
-
-                    if (!OpenList.Any(x => x.boardNumArray.SequenceEqual(y.boardNumArray)))
-                    {
-                        OpenList.Add(y);
-                        index = OpenList.Count - 1;
-                        tentativIsBetter = true;
-                    }
-                    else
-                    {
-                        index = OpenList.FindIndex(x => x.boardNumArray.SequenceEqual(y.boardNumArray));
-                        tentativIsBetter = tempG < OpenList[index].g;
-                    }
-
-                    if (tentativIsBetter)
-                    {
-                        OpenList[index].g = tempG;
-                        OpenList[index].h = ManhattenDistance(y.boardNumArray);
-                        OpenList[index].f = OpenList[index].g + OpenList[index].h;
-                    }
-                }
-            }
-
-            return "";
-        }
-
-        //Construct path from goal state
-        private string FindPath(BoardState goal)
-        {
-            BoardState curr = goal;
-            string map = "";
-            while (curr.parent != null)
-            {
-                map += curr.move;
-                curr = curr.parent;
-            }
-            return new string(map.Reverse().ToArray());
-        }
     }
 }

@@ -35,7 +35,6 @@
             this.mediumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aStarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.iDAStarToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -99,18 +98,10 @@
             // autoGameToolStripMenuItem
             // 
             this.autoGameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aStarToolStripMenuItem,
             this.iDAStarToolStripMenuItem});
             this.autoGameToolStripMenuItem.Name = "autoGameToolStripMenuItem";
             this.autoGameToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
             this.autoGameToolStripMenuItem.Text = "Auto Solve";
-            // 
-            // aStarToolStripMenuItem
-            // 
-            this.aStarToolStripMenuItem.Name = "aStarToolStripMenuItem";
-            this.aStarToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
-            this.aStarToolStripMenuItem.Text = "A Star";
-            this.aStarToolStripMenuItem.Click += new System.EventHandler(this.aStarToolStripMenuItem_Click);
             // 
             // iDAStarToolStripMenuItem
             // 
@@ -186,7 +177,6 @@
         private System.Windows.Forms.ToolStripMenuItem infoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ToolStripMenuItem aStarToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem iDAStarToolStripMenuItem;
         private System.Windows.Forms.ListView listView1;
     }

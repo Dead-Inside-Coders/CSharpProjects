@@ -13,7 +13,7 @@ namespace GameOfFifteen
 {
     public partial class Form1 : Form
     {
-        public delegate void MyDelegate();
+        public delegate void MyDelegate(int index, int newIndex, string where);
 
         private Button[] buttonsArray;
         private int[] numArray;
@@ -72,7 +72,6 @@ namespace GameOfFifteen
             int i;
             steps = 0;
             autoGameToolStripMenuItem.Enabled = true;
-            aStarToolStripMenuItem.Enabled = true;
             label1.Text = steps.ToString();
             label1.ForeColor = Color.FromArgb(66, 115, 34);
 
@@ -183,7 +182,6 @@ namespace GameOfFifteen
         {
             difficulty = 50;
             CreateGame();
-            aStarToolStripMenuItem.Enabled = false;
             listView1.Items.Clear();
         }
 
@@ -191,31 +189,13 @@ namespace GameOfFifteen
         // Call Auto Solver IDA Star Algorithm
         private void iDAStarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string solution = Solver.GetPathIDAStar(startState);
+            string solution = Solver.GetPathIDAStar(startState, new MyDelegate(changeButtonPosition));
             label1.ForeColor = Color.FromArgb(54, 72, 36);
             if (solution != "")
             {
                 for (int i = 0; i < 16; i++)
                     buttonsArray[i].Enabled = false;
                 applaySolution(solution);
-            }
-            else
-                MessageBox.Show("Solution not found:(");
-        }
-
-
-        // Call Auto Solver A Star algorithm
-        private void aStarToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var solution = Task.Factory.StartNew(() => Solver.GetPathAStar(startState));
-            label1.ForeColor = Color.FromArgb(54, 72, 36);
-            if (solution.Result != "")
-            {
-                for (int i = 0; i < 16; i++)
-                    buttonsArray[i].Enabled = false;
-                newGameToolStripMenuItem.Enabled = false;
-                autoGameToolStripMenuItem.Enabled = false;
-                applaySolution(solution.Result);
             }
             else
                 MessageBox.Show("Solution not found:(");
@@ -241,7 +221,6 @@ namespace GameOfFifteen
                         break;
                     case 'D':
                         changeButtonPosition(zeroIndex, 4, "down");
-                        solution = solution.Remove(0, 1);
                         break;
                     case 'R':
                         changeButtonPosition(zeroIndex, 1, "right");
@@ -267,6 +246,7 @@ namespace GameOfFifteen
 
         private void changeButtonPosition(int index, int newIndex, string where)
         {
+
             listView1.Items.Add(buttonsArray[index + newIndex].Text + "--->" + where);
             buttonsArray[index].Text = buttonsArray[index + newIndex].Text;
             buttonsArray[index + newIndex].Text = "";
