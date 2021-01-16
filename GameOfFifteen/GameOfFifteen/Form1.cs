@@ -13,7 +13,7 @@ namespace GameOfFifteen
 {
     public partial class Form1 : Form
     {
-        public delegate void MyDelegate(int index, int newIndex, string where);
+        public delegate void MyDelegate( string where);
 
         private Button[] buttonsArray;
         private int[] numArray;
@@ -21,6 +21,8 @@ namespace GameOfFifteen
         private int steps, difficulty;
         private BoardState startState;
         AutoSolveClass Solver;
+        private bool isManual;
+        private int speed = 1000;
 
         public Form1()
         {
@@ -29,13 +31,6 @@ namespace GameOfFifteen
             startState = new BoardState();
             buttonsArray = new Button[16];
             numArray = new int[16];
-            // goalNumArray = new int[16];
-
-            //timer = new System.Timers.Timer();
-            //timer.Interval = 500;
-            //timer.Enabled = false;
-            //timer.Tick += TimerTick;
-
             Solver = new AutoSolveClass();
 
 
@@ -74,7 +69,7 @@ namespace GameOfFifteen
             autoGameToolStripMenuItem.Enabled = true;
             label1.Text = steps.ToString();
             label1.ForeColor = Color.FromArgb(66, 115, 34);
-
+            isManual = true;
             CreateBoard();
 
             for (i = 0; i < 16; i++)
@@ -151,10 +146,10 @@ namespace GameOfFifteen
             if (isGameOver())
             {
                 label1.ForeColor = Color.FromArgb(54, 72, 36);
-                for (i = 0; i < 16; i++)
-                    buttonsArray[i].Enabled = false;
+                setButtonActivity(false);
                 autoGameToolStripMenuItem.Enabled = false;
                 MessageBox.Show(String.Format("Congratulation, you won!\nNumber of Steps: {0}", steps), "Game Over", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                isManualActiveButton(false);
             }
         }
 
@@ -164,7 +159,8 @@ namespace GameOfFifteen
         {
             difficulty = 15;
             CreateGame();
-            listView1.Items.Clear();
+            isManualActiveButton(false);
+            //listView1.Items.Clear();
         }
 
 
@@ -173,7 +169,8 @@ namespace GameOfFifteen
         {
             difficulty = 25;
             CreateGame();
-            listView1.Items.Clear();
+            isManualActiveButton(false);
+            //listView1.Items.Clear();
         }
 
 
@@ -182,20 +179,23 @@ namespace GameOfFifteen
         {
             difficulty = 50;
             CreateGame();
-            listView1.Items.Clear();
+            isManualActiveButton(false);
+            // listView1.Items.Clear();
         }
 
 
         // Call Auto Solver IDA Star Algorithm
         private void iDAStarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string solution = Solver.GetPathIDAStar(startState, new MyDelegate(changeButtonPosition));
+            //Task<String> callback = Task<String>.Factory.StartNew(() =>  Solver.GetPathIDAStar(startState) );
+            string callback = Solver.GetPathIDAStar(startState);
             label1.ForeColor = Color.FromArgb(54, 72, 36);
-            if (solution != "")
+            if (callback != "")
             {
-                for (int i = 0; i < 16; i++)
-                    buttonsArray[i].Enabled = false;
-                applaySolution(solution);
+                isManual = false;
+                setButtonActivity(false);
+                isManualActiveButton(true);
+                Task.Factory.StartNew(() => { applaySolution(callback); }); 
             }
             else
                 MessageBox.Show("Solution not found:(");
@@ -203,16 +203,10 @@ namespace GameOfFifteen
 
         private void applaySolution(string solution)
         {
-            while (solution.Length > 0)
+            
+            while (solution.Length > 0 && !isManual)
             {
-
-                int zeroIndex = 0;
-                for (int i = 0; i < 16; i++)
-                    if (numArray[i] == 0)
-                    {
-                        zeroIndex = i;
-                        break;
-                    }
+                int zeroIndex = findeEmptyPositonIndex(numArray);
                 switch (solution[0])
                 {
                     case 'U':
@@ -221,6 +215,7 @@ namespace GameOfFifteen
                         break;
                     case 'D':
                         changeButtonPosition(zeroIndex, 4, "down");
+                        solution = solution.Remove(0, 1);
                         break;
                     case 'R':
                         changeButtonPosition(zeroIndex, 1, "right");
@@ -232,26 +227,46 @@ namespace GameOfFifteen
                         break;
                 }
                 steps++;
-                label1.Text = steps.ToString();
+                label1.Invoke(new MethodInvoker(() =>
+                {
+                    label1.Text = steps.ToString();
+                }));
+                
 
                 if (isGameOver())
                 {
-                    for (int i = 0; i < 16; i++)
-                        buttonsArray[i].Enabled = false;
+                    setButtonActivity(false);
                     newGameToolStripMenuItem.Enabled = true;
+                    isManual = true;
                     MessageBox.Show(String.Format("Congratulation, you won!\nNumber of Steps: {0}", steps), "Game Over", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }
 
+        private int findeEmptyPositonIndex(int[] numArray)
+        {
+            for (int i = 0; i < numArray.Length; i++)
+            {
+                if(numArray[i] == 0)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
         private void changeButtonPosition(int index, int newIndex, string where)
         {
-
-            listView1.Items.Add(buttonsArray[index + newIndex].Text + "--->" + where);
-            buttonsArray[index].Text = buttonsArray[index + newIndex].Text;
-            buttonsArray[index + newIndex].Text = "";
-            numArray[index] = numArray[index + newIndex];
-            numArray[index + newIndex] = 0;
+            Thread.Sleep(speed);
+            //listView1.Items.Add(buttonsArray[index + newIndex].Text + "--->" + where);
+            buttonsArray[index].Invoke(new MethodInvoker(() => {
+                buttonsArray[index].Text = buttonsArray[index + newIndex].Text;
+                buttonsArray[index + newIndex].Text = "";
+                startState.boardNumArray[index] = numArray[index + newIndex];
+                startState.boardNumArray[index + newIndex] = 0;
+                numArray[index] = numArray[index + newIndex];
+                numArray[index + newIndex] = 0;
+            }));
+            
         }
 
         // Application info
@@ -285,6 +300,20 @@ namespace GameOfFifteen
             return false;
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            isManual = true;
+            isManualActiveButton(false);
+            setButtonActivity(true);
+        }
+
+        private void isManualActiveButton(bool value)
+        {       
+            button1.Visible = value;
+            speedUp.Visible = value;
+            speedDown.Visible = value;
+        }
+
 
         //Check is Game over
         private bool isGameOver()
@@ -295,8 +324,21 @@ namespace GameOfFifteen
             return true;
         }
 
+        private void speedUp_Click(object sender, EventArgs e)
+        {
+            speed -= 200;
+        }
 
+        private void speedDown_Click(object sender, EventArgs e)
+        {
+            speed += 200;
+        }
 
+        private void setButtonActivity(bool value)
+        {
+            for (int i = 0; i < 16; i++)
+                buttonsArray[i].Enabled = value;
+        }
     }
 }
 

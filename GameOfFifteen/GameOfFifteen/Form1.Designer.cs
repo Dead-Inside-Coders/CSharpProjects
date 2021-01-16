@@ -39,7 +39,9 @@
             this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
-            this.listView1 = new System.Windows.Forms.ListView();
+            this.button1 = new System.Windows.Forms.Button();
+            this.speedUp = new System.Windows.Forms.Button();
+            this.speedDown = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -51,7 +53,7 @@
             this.exitToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(616, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(387, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -135,22 +137,48 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "0";
             // 
-            // listView1
+            // button1
             // 
-            this.listView1.HideSelection = false;
-            this.listView1.Location = new System.Drawing.Point(435, 52);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(169, 380);
-            this.listView1.TabIndex = 2;
-            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.button1.Location = new System.Drawing.Point(99, 460);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(184, 40);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "Ручное упраление";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Visible = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // speedUp
+            // 
+            this.speedUp.Location = new System.Drawing.Point(12, 460);
+            this.speedUp.Name = "speedUp";
+            this.speedUp.Size = new System.Drawing.Size(68, 38);
+            this.speedUp.TabIndex = 3;
+            this.speedUp.Text = "speed +";
+            this.speedUp.UseVisualStyleBackColor = true;
+            this.speedUp.Visible = false;
+            this.speedUp.Click += new System.EventHandler(this.speedUp_Click);
+            // 
+            // speedDown
+            // 
+            this.speedDown.Location = new System.Drawing.Point(298, 462);
+            this.speedDown.Name = "speedDown";
+            this.speedDown.Size = new System.Drawing.Size(68, 38);
+            this.speedDown.TabIndex = 4;
+            this.speedDown.Text = "speed -";
+            this.speedDown.UseVisualStyleBackColor = true;
+            this.speedDown.Visible = false;
+            this.speedDown.Click += new System.EventHandler(this.speedDown_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(216)))), ((int)(((byte)(229)))), ((int)(((byte)(198)))));
-            this.ClientSize = new System.Drawing.Size(616, 477);
-            this.Controls.Add(this.listView1);
+            this.ClientSize = new System.Drawing.Size(387, 512);
+            this.Controls.Add(this.speedDown);
+            this.Controls.Add(this.speedUp);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -178,7 +206,9 @@
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolStripMenuItem iDAStarToolStripMenuItem;
-        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button speedUp;
+        private System.Windows.Forms.Button speedDown;
     }
 }
 

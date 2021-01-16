@@ -12,7 +12,6 @@ namespace GameOfFifteen
     {
         private int deepness, minPrevIter;
         private string map;
-        Form1.MyDelegate myDelegate;
 
         public AutoSolveClass()
         {
@@ -20,9 +19,8 @@ namespace GameOfFifteen
             minPrevIter = 0;
         }
 
-        public string GetPathIDAStar(BoardState start, Form1.MyDelegate myDelegate)
-        {
-            this.myDelegate = myDelegate;
+        public string GetPathIDAStar(BoardState start)
+        {;       
             if (IDAStar(start))
                 return new string(map.Reverse().ToArray());
             return "";
@@ -31,13 +29,12 @@ namespace GameOfFifteen
         // Calculate Manhatten distance for current board state
         private int ManhattenDistance(int[] b)
         {
-            int i, j, res = 0;
-
-            for (i = 0; i < 16; i++)
+            int res = 0;
+            for (int i = 0; i < 16; i++)
             {
                 if (b[i] == 0)
                     continue;
-                for (j = 0; j < 16; j++)
+                for (int j = 0; j < 16; j++)
                 {
                     if (j == b[i] - 1)
                     {
@@ -64,7 +61,7 @@ namespace GameOfFifteen
                     break;
                 }
             }
-
+             
             for (i = 0; i < 16; i++)
             {
                 if (Math.Abs(zeroIndex - i) == 1 || Math.Abs(zeroIndex - i) == 4)
@@ -105,7 +102,6 @@ namespace GameOfFifteen
         {
             bool res = false;
             deepness = ManhattenDistance(start.boardNumArray);
-
             do
             {
                 minPrevIter = 2147483647;
@@ -120,7 +116,7 @@ namespace GameOfFifteen
         private bool recSearch(int g, BoardState prevState)
         {
             int h = ManhattenDistance(prevState.boardNumArray);
-            bool res = false;
+            bool res;
             List<BoardState> Neighbors;
 
             if (h == 0)
@@ -146,6 +142,7 @@ namespace GameOfFifteen
                         res = recSearch(g + 1, y);
                         if (res)
                         {
+                           // myDelegate(y.move);
                             map += y.move;
                             return true;
                         }
@@ -156,6 +153,7 @@ namespace GameOfFifteen
                     res = recSearch(g + 1, y);
                     if (res)
                     {
+                       // myDelegate(y.move);
                         map += y.move;
                         return true;
                     }
@@ -163,6 +161,5 @@ namespace GameOfFifteen
             }
             return false;
         }
-
     }
 }
