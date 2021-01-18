@@ -32,11 +32,7 @@ namespace GameOfFifteen
             buttonsArray = new Button[16];
             numArray = new int[16];
             Solver = new AutoSolveClass();
-
-
-
             InitializeComponent();
-
             InitializeButtons();
             CreateGame();
 
@@ -187,8 +183,8 @@ namespace GameOfFifteen
         // Call Auto Solver IDA Star Algorithm
         private void iDAStarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //Task<String> callback = Task<String>.Factory.StartNew(() =>  Solver.GetPathIDAStar(startState) );
-            string callback = Solver.GetPathIDAStar(startState);
+            //Task<String> callback = Task<String>.Factory.StartNew(() =>  Solver.GetSolution(startState) );
+            string callback = Solver.GetSolution(startState);
             label1.ForeColor = Color.FromArgb(54, 72, 36);
             if (callback != "")
             {

@@ -109,7 +109,7 @@
             // 
             this.iDAStarToolStripMenuItem.Name = "iDAStarToolStripMenuItem";
             this.iDAStarToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
-            this.iDAStarToolStripMenuItem.Text = "IDA Star";
+            this.iDAStarToolStripMenuItem.Text = "Auto game";
             this.iDAStarToolStripMenuItem.Click += new System.EventHandler(this.iDAStarToolStripMenuItem_Click);
             // 
             // infoToolStripMenuItem

@@ -19,9 +19,9 @@ namespace GameOfFifteen
             minPrevIter = 0;
         }
 
-        public string GetPathIDAStar(BoardState start)
+        public string GetSolution(BoardState start)
         {;       
-            if (IDAStar(start))
+            if (isSoluted(start))
                 return new string(map.Reverse().ToArray());
             return "";
         }
@@ -97,14 +97,13 @@ namespace GameOfFifteen
             return l;
         }
 
-        // IDA star algorithm
-        private bool IDAStar(BoardState start)
+        private bool isSoluted(BoardState start)
         {
             bool res = false;
             deepness = ManhattenDistance(start.boardNumArray);
             do
             {
-                minPrevIter = 2147483647;
+                minPrevIter = int.MaxValue;
                 res = recSearch(0, start);
                 deepness = minPrevIter;
             } while ((!res) && (deepness <= 50));
@@ -112,8 +111,8 @@ namespace GameOfFifteen
             return res;
         }
 
-        // Recursive method wich call in IDAStar method
-        private bool recSearch(int g, BoardState prevState)
+        // Recursive method wich call in isSoluted method
+        private bool recSearch(int steps, BoardState prevState)
         {
             int h = ManhattenDistance(prevState.boardNumArray);
             bool res;
@@ -122,7 +121,7 @@ namespace GameOfFifteen
             if (h == 0)
                 return true;
 
-            int f = g + h;
+            int f = steps + h;
 
             if (f > deepness)
             {
@@ -139,10 +138,9 @@ namespace GameOfFifteen
                 {
                     if (!y.boardNumArray.SequenceEqual(prevState.parent.boardNumArray))
                     {
-                        res = recSearch(g + 1, y);
+                        res = recSearch(steps + 1, y);
                         if (res)
                         {
-                           // myDelegate(y.move);
                             map += y.move;
                             return true;
                         }
@@ -150,10 +148,9 @@ namespace GameOfFifteen
                 }
                 else
                 {
-                    res = recSearch(g + 1, y);
+                    res = recSearch(steps + 1, y);
                     if (res)
                     {
-                       // myDelegate(y.move);
                         map += y.move;
                         return true;
                     }
